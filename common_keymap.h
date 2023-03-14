@@ -53,11 +53,15 @@ enum layers {
 #define CTL_MPLY MT(MOD_RCTL, KC_MPLY)
 #define GUI_MNXT MT(MOD_RGUI, KC_MNXT)
 
-enum custom_keycodes{
-   SCROLL,
+enum combos{
     DBL_PRN,
     DBL_BRC,
     DBL_CBR,
+    SCLN_RET
+};
+
+enum custom_keycodes{
+   SCROLL,
     DOT_ENT,
     Z_ENT,
     D_DELETE,
@@ -65,9 +69,10 @@ enum custom_keycodes{
     S_ALT_S,
     T_TAKE,
     SLASH_ENT,
-    SCLN_ENT, // tap ent, hold shift, doubletap semicolon enter
-     VSCROLL,
-     DBL_GTLT
+    SCLN_ENT,
+     // tap ent, hold shift, doubletap semicolon enter
+     VSCROLL
+     //DBL_GTLT
 };
 
 // ┌───────────────────────────────────────────────────────────┐
@@ -117,14 +122,22 @@ const uint16_t PROGMEM gt_combo[] = { KC_D, SHT_T, COMBO_END};
 // │ c o m b o s                                               │
 // └───────────────────────────────────────────────────────────┘
 combo_t key_combos[COMBO_COUNT] = {
+    // these have to go first to match custom combos
+    [DBL_PRN]=COMBO_ACTION(pr_combo),
+    [DBL_BRC]=COMBO_ACTION(br_combo),
+    [DBL_CBR]=COMBO_ACTION(cbr_combo),
+    [SCLN_RET]=COMBO_ACTION(rmb4_combo),
+    
+    //COMBO(br_combo, DBL_BRC),
+    //COMBO(cbr_combo, DBL_CBR),
+    //COMBO(rmb4_combo, SCLN_RET),
+    // ok order doesn't matter anymore
     COMBO(slash_nav_combo, KC_ENT),
     COMBO(o_nav_combo, KC_ENT),
     COMBO(rh_combo, MO(_ADJUST)),
     COMBO(a_bksp_combo, KC_ENT),
-    COMBO(pr_combo, DBL_PRN),
-    COMBO(cbr_combo, DBL_CBR),
-    COMBO(br_combo, DBL_BRC),
-    COMBO(gt_combo, DBL_GTLT),
+    
+    //COMBO(gt_combo, DBL_GTLT),
     // middle/bottom combos
     COMBO(lmb4_combo, KC_TILD),
     COMBO(lmb3_combo, KC_GRAVE),
@@ -135,9 +148,8 @@ combo_t key_combos[COMBO_COUNT] = {
     COMBO(rmb1_combo, KC_EQUAL),
     // COMBO(rmb2_combo, LSFT(KC_SEMICOLON)),
     // COMBO(rmb3_combo, KC_SEMICOLON),
-     COMBO(rmb2_combo, RSFT(KC_COMMA)),
-    COMBO(rmb3_combo, RSFT(KC_DOT)),
-    COMBO(rmb4_combo, SCLN_ENT),
+     COMBO(rmb2_combo, RSFT(KC_SCLN)),
+    COMBO(rmb3_combo, KC_SCLN),
     COMBO(rtm4_combo, KC_DQUO),
     // middle / top combos
     COMBO(lmt4_combo, KC_EXLM),
@@ -281,31 +293,31 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // ┌─────────────────────────────────────────────────┐
 // │ m o d   m o r p h s                             │
 // └─────────────────────────────────────────────────┘
-    case KC_COMMA:
-         if ((get_mods() & MOD_MASK_SHIFT) ) {
-            // shift is already pressed
-            if (record->event.pressed) {
-                register_code(KC_SEMICOLON);
-            } else {
-                unregister_code(KC_SEMICOLON);
-            }
-            // Do not let QMK process the keycode further
-            return false;
-         }
-         break;
-    case KC_DOT:
-         if ((get_mods() & MOD_MASK_SHIFT) ) {
-            if (record->event.pressed) {
-                del_mods(MOD_MASK_SHIFT);
-                register_code(KC_SEMICOLON);
-                set_mods(mod_state);
-            } else {
-                unregister_code(KC_SEMICOLON);
-            }
-            // Do not let QMK process the keycode further
-            return false;
-         }
-         break;
+    // case KC_COMMA:
+    //      if ((get_mods() & MOD_MASK_SHIFT) ) {
+    //         // shift is already pressed
+    //         if (record->event.pressed) {
+    //             register_code(KC_SEMICOLON);
+    //         } else {
+    //             unregister_code(KC_SEMICOLON);
+    //         }
+    //         // Do not let QMK process the keycode further
+    //         return false;
+    //      }
+    //      break;
+    // case KC_DOT:
+    //      if ((get_mods() & MOD_MASK_SHIFT) ) {
+    //         if (record->event.pressed) {
+    //             del_mods(MOD_MASK_SHIFT);
+    //             register_code(KC_SEMICOLON);
+    //             set_mods(mod_state);
+    //         } else {
+    //             unregister_code(KC_SEMICOLON);
+    //         }
+    //         // Do not let QMK process the keycode further
+    //         return false;
+    //      }
+    //      break;
 // ┌─────────────────────────────────────────────────┐
 // │ a u d i o / h a p t i c                         │
 // └─────────────────────────────────────────────────┘
@@ -334,12 +346,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         break;
 
-    
+    }
+
+    return true;
+}
+
+void process_combo_event(uint16_t combo_index, bool pressed) {
+    mod_state = get_mods();
+    switch(combo_index) {
 // ┌─────────────────────────────────────────────────┐
 // │ d o u b l e  s e p a r a t o r s                │
 // └─────────────────────────────────────────────────┘
     case DBL_PRN:
-        if (record->event.pressed) {
+        if (pressed) {
             if(!(get_mods() & MOD_MASK_SHIFT))
                 set_mods(MOD_MASK_SHIFT);
             register_code(KC_9);
@@ -351,10 +370,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             unregister_code(KC_0);
             unregister_code(KC_LEFT);
         }
-        // Do not let QMK process the keycode further
-        return false;
+        break;
     case DBL_BRC:
-        if (record->event.pressed) {
+        if (pressed) {
             register_code(KC_LBRC);
             register_code(KC_RBRC);
             register_code(KC_LEFT);
@@ -363,10 +381,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             unregister_code(KC_RBRC);
             unregister_code(KC_LEFT);
         }
-        // Do not let QMK process the keycode further
-        return false;
+        break;
     case DBL_CBR:
-         if (record->event.pressed) {
+         if (pressed) {
             if(!(get_mods() & MOD_MASK_SHIFT))
                 set_mods(MOD_MASK_SHIFT);
             register_code(KC_LBRC);
@@ -378,37 +395,33 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             unregister_code(KC_RBRC);
             unregister_code(KC_LEFT);
         }
-        // Do not let QMK process the keycode further
-        return false;
-    case DBL_GTLT:
-         if (record->event.pressed) {
-            if(!(get_mods() & MOD_MASK_SHIFT))
-                set_mods(MOD_MASK_SHIFT);
-            register_code(KC_COMMA);
-            register_code(KC_DOT);
-            set_mods(mod_state);
-            register_code(KC_LEFT);
-        } else {
-            unregister_code(KC_COMMA);
-            unregister_code(KC_DOT);
-            unregister_code(KC_LEFT);
-        }
-        // Do not let QMK process the keycode further
-        return false;
+        break;
+    // case DBL_GTLT:
+    //      if (record->event.pressed) {
+    //         if(!(get_mods() & MOD_MASK_SHIFT))
+    //             set_mods(MOD_MASK_SHIFT);
+    //         register_code(KC_COMMA);
+    //         register_code(KC_DOT);
+    //         set_mods(mod_state);
+    //         register_code(KC_LEFT);
+    //     } else {
+    //         unregister_code(KC_COMMA);
+    //         unregister_code(KC_DOT);
+    //         unregister_code(KC_LEFT);
+    //     }
+    //     // Do not let QMK process the keycode further
+    //     return false;
 // ┌─────────────────────────────────────────────────┐
 // │ c u s t o m  k e y c o d e s                    │
 // └─────────────────────────────────────────────────┘
-    case SCLN_ENT:
-        if (record->event.pressed) {
+    case SCLN_RET:
+        if (pressed) {
             register_code(KC_SCLN);
             register_code(KC_ENT);
         } else {
             unregister_code(KC_SCLN);
             unregister_code(KC_ENT);
         }
-        // Do not let QMK process the keycode further
-        return false;
-    }
-
-    return true;
+        break;
+  }
 }
