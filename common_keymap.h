@@ -54,7 +54,7 @@ enum layers {
 #define GUI_MNXT MT(MOD_RGUI, KC_MNXT)
 
 enum custom_keycodes{
-    SCROLL,
+   SCROLL,
     DBL_PRN,
     DBL_BRC,
     DBL_CBR,
@@ -65,7 +65,9 @@ enum custom_keycodes{
     S_ALT_S,
     T_TAKE,
     SLASH_ENT,
-    SCLN_ENT // tap ent, hold shift, doubletap semicolon enter
+    SCLN_ENT, // tap ent, hold shift, doubletap semicolon enter
+     VSCROLL,
+     DBL_GTLT
 };
 
 // ┌───────────────────────────────────────────────────────────┐
@@ -107,9 +109,9 @@ const uint16_t PROGMEM rtm4_combo[] = {  KC_O, KC_QUOT, COMBO_END};
 
 // doubles
 const uint16_t PROGMEM pr_combo[] = { KC_H, SHT_N, COMBO_END};
-const uint16_t PROGMEM cbr_combo[] = { KC_K, KC_M, COMBO_END};
-const uint16_t PROGMEM br_combo[] = { KC_J, KC_L, COMBO_END};
-
+const uint16_t PROGMEM cbr_combo[] = { KC_J, KC_L, COMBO_END};
+const uint16_t PROGMEM br_combo[] = { KC_K, KC_M, COMBO_END};
+const uint16_t PROGMEM gt_combo[] = { KC_D, SHT_T, COMBO_END};
 
 // ┌───────────────────────────────────────────────────────────┐
 // │ c o m b o s                                               │
@@ -122,6 +124,7 @@ combo_t key_combos[COMBO_COUNT] = {
     COMBO(pr_combo, DBL_PRN),
     COMBO(cbr_combo, DBL_CBR),
     COMBO(br_combo, DBL_BRC),
+    COMBO(gt_combo, DBL_GTLT),
     // middle/bottom combos
     COMBO(lmb4_combo, KC_TILD),
     COMBO(lmb3_combo, KC_GRAVE),
@@ -130,8 +133,11 @@ combo_t key_combos[COMBO_COUNT] = {
     COMBO(lmb0_combo, KC_PLUS),
     COMBO(rmb0_combo, KC_PIPE),
     COMBO(rmb1_combo, KC_EQUAL),
-    COMBO(rmb2_combo, LSFT(KC_SEMICOLON)),
-    COMBO(rmb3_combo, TD(SCLN_ENT)),
+    // COMBO(rmb2_combo, LSFT(KC_SEMICOLON)),
+    // COMBO(rmb3_combo, KC_SEMICOLON),
+     COMBO(rmb2_combo, RSFT(KC_COMMA)),
+    COMBO(rmb3_combo, RSFT(KC_DOT)),
+    COMBO(rmb4_combo, SCLN_ENT),
     COMBO(rtm4_combo, KC_DQUO),
     // middle / top combos
     COMBO(lmt4_combo, KC_EXLM),
@@ -152,8 +158,6 @@ void scln_ent_sent_finished(tap_dance_state_t *state, void *user_data);
 void scln_ent_sent_reset(tap_dance_state_t *state, void *user_data);
 tap_dance_action_t tap_dance_actions[] = {
     [DOT_ENT]= ACTION_TAP_DANCE_DOUBLE(KC_DOT, KC_ENT),
-    [SLASH_ENT] = ACTION_TAP_DANCE_DOUBLE(KC_SLASH, KC_ENT),
-    [Z_ENT] = ACTION_TAP_DANCE_DOUBLE(KC_Z, KC_ENT),
     [D_DELETE] = ACTION_TAP_DANCE_DOUBLE(KC_D, KC_DEL),
     [P_SPACE] = ACTION_TAP_DANCE_DOUBLE(KC_P, KC_SPACE),
     [S_ALT_S] = ACTION_TAP_DANCE_DOUBLE(KC_S, LALT(KC_S)),
@@ -213,9 +217,6 @@ bool caps_word_press_user(uint16_t keycode) {
         case KC_DEL:
         case KC_UNDS:
             return true;
-        case TD(Z_ENT):
-            add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to next key.
-            return true;
         default:
             return false;  // Deactivate Caps Word.
     }
@@ -228,6 +229,7 @@ bool caps_word_press_user(uint16_t keycode) {
 // └───────────────────────────────────────────────────────────┘
 uint8_t mod_state;
 #ifdef POINTING_DEVICE_ENABLE
+static bool vscrolling_mode = false;
 static bool scrolling_mode = false;
 #endif
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -245,7 +247,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // ┌─────────────────────────────────────────────────┐
 // │ m o u s e   s c r o l l   l o c k               │
 // └─────────────────────────────────────────────────┘
-     case SCROLL:
+     case VSCROLL:
+        if (record->event.pressed) {
+            vscrolling_mode = true;
+            pointing_device_set_cpi(50);
+            #ifdef HAPTIC_ENABLE
+            DRV_pulse(sharp_click);
+            #endif // HAPTIC
+        } else {
+            vscrolling_mode = false;
+            pointing_device_set_cpi(500);
+            #ifdef HAPTIC_ENABLE
+            DRV_pulse(sharp_click);
+            #endif // HAPTIC
+        }
+        return false;
+    case SCROLL:
         if (record->event.pressed) {
             scrolling_mode = true;
             pointing_device_set_cpi(50);
@@ -316,6 +333,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           #endif // AUDIO_ENABLE
         }
         break;
+
+    
 // ┌─────────────────────────────────────────────────┐
 // │ d o u b l e  s e p a r a t o r s                │
 // └─────────────────────────────────────────────────┘
@@ -326,9 +345,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             register_code(KC_9);
             register_code(KC_0);
             set_mods(mod_state);
+            register_code(KC_LEFT);
         } else {
             unregister_code(KC_9);
             unregister_code(KC_0);
+            unregister_code(KC_LEFT);
         }
         // Do not let QMK process the keycode further
         return false;
@@ -336,9 +357,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (record->event.pressed) {
             register_code(KC_LBRC);
             register_code(KC_RBRC);
+            register_code(KC_LEFT);
         } else {
             unregister_code(KC_LBRC);
             unregister_code(KC_RBRC);
+            unregister_code(KC_LEFT);
         }
         // Do not let QMK process the keycode further
         return false;
@@ -349,9 +372,39 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             register_code(KC_LBRC);
             register_code(KC_RBRC);
             set_mods(mod_state);
+            register_code(KC_LEFT);
         } else {
             unregister_code(KC_LBRC);
             unregister_code(KC_RBRC);
+            unregister_code(KC_LEFT);
+        }
+        // Do not let QMK process the keycode further
+        return false;
+    case DBL_GTLT:
+         if (record->event.pressed) {
+            if(!(get_mods() & MOD_MASK_SHIFT))
+                set_mods(MOD_MASK_SHIFT);
+            register_code(KC_COMMA);
+            register_code(KC_DOT);
+            set_mods(mod_state);
+            register_code(KC_LEFT);
+        } else {
+            unregister_code(KC_COMMA);
+            unregister_code(KC_DOT);
+            unregister_code(KC_LEFT);
+        }
+        // Do not let QMK process the keycode further
+        return false;
+// ┌─────────────────────────────────────────────────┐
+// │ c u s t o m  k e y c o d e s                    │
+// └─────────────────────────────────────────────────┘
+    case SCLN_ENT:
+        if (record->event.pressed) {
+            register_code(KC_SCLN);
+            register_code(KC_ENT);
+        } else {
+            unregister_code(KC_SCLN);
+            unregister_code(KC_ENT);
         }
         // Do not let QMK process the keycode further
         return false;
