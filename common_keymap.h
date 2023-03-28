@@ -18,12 +18,13 @@
 enum layers {
     _COLEMAK,
     _GAMES,
+    _GAMES_ALT,
     _REAPER,
     _MOUSE,
     _SYMBOLS,
     _NUMBERS,
     _NAV,
-    _ADJUST,
+    _ADJUST
 };
 
 // ┌───────────────────────────────────────────────────────────┐
@@ -57,11 +58,16 @@ enum combos{
     DBL_PRN,
     DBL_BRC,
     DBL_CBR,
+    DBL_GTLT,
     SCLN_RET
 };
 
 enum custom_keycodes{
-   SCROLL,
+   SCROLL=SAFE_RANGE,
+   VSCROLL
+};
+
+enum tdkeys{
     DOT_ENT,
     Z_ENT,
     D_DELETE,
@@ -71,7 +77,7 @@ enum custom_keycodes{
     SLASH_ENT,
     SCLN_ENT,
      // tap ent, hold shift, doubletap semicolon enter
-     VSCROLL
+
      //DBL_GTLT
 };
 
@@ -111,12 +117,13 @@ const uint16_t PROGMEM rmb2_combo[] = {  CTL_E, KC_COMM, COMBO_END};
 const uint16_t PROGMEM rmb3_combo[] = {  ALT_I, KC_DOT, COMBO_END};
 const uint16_t PROGMEM rmb4_combo[] = {  KC_O, KC_SLSH, COMBO_END};
 const uint16_t PROGMEM rtm4_combo[] = {  KC_O, KC_QUOT, COMBO_END};
+const uint16_t PROGMEM lth_combo[] = {  MT(MOD_LCTL,KC_BSPC), LT(_NUMBERS, KC_TAB), COMBO_END};
 
 // doubles
 const uint16_t PROGMEM pr_combo[] = { KC_H, SHT_N, COMBO_END};
 const uint16_t PROGMEM cbr_combo[] = { KC_J, KC_L, COMBO_END};
 const uint16_t PROGMEM br_combo[] = { KC_K, KC_M, COMBO_END};
-const uint16_t PROGMEM gt_combo[] = { KC_D, SHT_T, COMBO_END};
+const uint16_t PROGMEM gt_combo[] = { SHT_N, CTL_E, COMBO_END};
 
 // ┌───────────────────────────────────────────────────────────┐
 // │ c o m b o s                                               │
@@ -126,6 +133,7 @@ combo_t key_combos[COMBO_COUNT] = {
     [DBL_PRN]=COMBO_ACTION(pr_combo),
     [DBL_BRC]=COMBO_ACTION(br_combo),
     [DBL_CBR]=COMBO_ACTION(cbr_combo),
+    [DBL_GTLT]=COMBO_ACTION(gt_combo),
     [SCLN_RET]=COMBO_ACTION(rmb4_combo),
     
     //COMBO(br_combo, DBL_BRC),
@@ -160,7 +168,8 @@ combo_t key_combos[COMBO_COUNT] = {
     COMBO(rmt0_combo, KC_CIRC),
     COMBO(rmt1_combo, KC_AMPR),
     COMBO(rmt2_combo, KC_ASTR),
-    COMBO(rtm4_combo, KC_DQUO)
+    COMBO(rtm4_combo, KC_DQUO),
+    COMBO(lth_combo, KC_DEL),
 };
 
 // ┌───────────────────────────────────────────────────────────┐
@@ -297,9 +306,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     //      if ((get_mods() & MOD_MASK_SHIFT) ) {
     //         // shift is already pressed
     //         if (record->event.pressed) {
-    //             register_code(KC_SEMICOLON);
+    //             register_code(KC_LT);
     //         } else {
-    //             unregister_code(KC_SEMICOLON);
+    //             unregister_code(KC_LT);
     //         }
     //         // Do not let QMK process the keycode further
     //         return false;
@@ -308,11 +317,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // case KC_DOT:
     //      if ((get_mods() & MOD_MASK_SHIFT) ) {
     //         if (record->event.pressed) {
-    //             del_mods(MOD_MASK_SHIFT);
-    //             register_code(KC_SEMICOLON);
-    //             set_mods(mod_state);
+    //             //del_mods(MOD_MASK_SHIFT);
+    //             register_code(KC_GT);
+    //             //set_mods(mod_state);
     //         } else {
-    //             unregister_code(KC_SEMICOLON);
+    //             unregister_code(KC_GT);
     //         }
     //         // Do not let QMK process the keycode further
     //         return false;
