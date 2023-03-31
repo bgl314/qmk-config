@@ -69,16 +69,11 @@ enum custom_keycodes{
 
 enum tdkeys{
     DOT_ENT,
-    Z_ENT,
     D_DELETE,
     P_SPACE,
     S_ALT_S,
     T_TAKE,
-    SLASH_ENT,
-    SCLN_ENT,
-     // tap ent, hold shift, doubletap semicolon enter
 
-     //DBL_GTLT
 };
 
 // ┌───────────────────────────────────────────────────────────┐
@@ -182,8 +177,11 @@ tap_dance_action_t tap_dance_actions[] = {
     [D_DELETE] = ACTION_TAP_DANCE_DOUBLE(KC_D, KC_DEL),
     [P_SPACE] = ACTION_TAP_DANCE_DOUBLE(KC_P, KC_SPACE),
     [S_ALT_S] = ACTION_TAP_DANCE_DOUBLE(KC_S, LALT(KC_S)),
-    [T_TAKE] = ACTION_TAP_DANCE_DOUBLE(KC_T, LALT(LSFT(KC_T))),
-    [SCLN_ENT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, scln_ent_sent_finished, scln_ent_sent_reset)
+    [T_TAKE] = ACTION_TAP_DANCE_DOUBLE(KC_T, LSA(KC_T))
+    
+   // [S_ALT_S] = ACTION_TAP_DANCE_DOUBLE(KC_S, LALT(KC_S)),
+   // [T_TAKE] = ACTION_TAP_DANCE_DOUBLE(KC_T, LALT(LSFT(KC_T)))
+   // [SCLN_ENT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, scln_ent_sent_finished, scln_ent_sent_reset)
 };
 
 
@@ -196,6 +194,8 @@ tap_dance_action_t tap_dance_actions[] = {
 // └───────────────────────────────────────────────────────────┘
 // SHIFT-ENTER-SEMICOLON/ENTER
 // Handle the possible states for each tapdance keycode you define:
+/*
+now a combo 
 void scln_ent_sent_finished(tap_dance_state_t *state, void *user_data) {
      if(state->count == 1){
         register_code16(KC_SCLN);
@@ -212,7 +212,7 @@ void scln_ent_sent_reset(tap_dance_state_t *state, void *user_data) {
              unregister_code16(KC_ENT);
      }
 }
-
+*/
 // ┌───────────────────────────────────────────────────────────┐
 // │ o v e r r i d e s                                         │
 // └───────────────────────────────────────────────────────────┘
