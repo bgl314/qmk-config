@@ -6,10 +6,12 @@ for more options.
 */
 //#define EE_HANDS
 
-#define TAPPING_TERM 200
+#define TAPPING_TERM 170
 // Prevent normal rollover on alphas from accidentally triggering mods.
 #define IGNORE_MOD_TAP_INTERRUPT
 #define TAPPING_TOGGLE 4
 #define COMBO_COUNT 29
 // having trouble getting override to trigger caps word, below is working
 #define BOTH_SHIFTS_TURNS_ON_CAPS_WORD
+
+#define BILATERAL_COMBINATIONS 500
