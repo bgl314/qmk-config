@@ -64,7 +64,9 @@ enum combos{
 
 enum custom_keycodes{
    SCROLL=SAFE_RANGE,
-   VSCROLL
+   VSCROLL,
+   CPI_UP,
+   CPI_DN
 };
 
 enum tdkeys{
@@ -252,6 +254,7 @@ uint8_t mod_state;
 #ifdef POINTING_DEVICE_ENABLE
 static bool vscrolling_mode = false;
 static bool scrolling_mode = false;
+static int curr_cpi=800;
 #endif
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     #ifdef CONSOLE_ENABLE
@@ -271,13 +274,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
      case VSCROLL:
         if (record->event.pressed) {
             vscrolling_mode = true;
-            pointing_device_set_cpi(50);
+            pointing_device_set_cpi(30);
             #ifdef HAPTIC_ENABLE
             DRV_pulse(sharp_click);
             #endif // HAPTIC
         } else {
             vscrolling_mode = false;
-            pointing_device_set_cpi(500);
+            pointing_device_set_cpi(curr_cpi);
             #ifdef HAPTIC_ENABLE
             DRV_pulse(sharp_click);
             #endif // HAPTIC
@@ -286,13 +289,31 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case SCROLL:
         if (record->event.pressed) {
             scrolling_mode = true;
-            pointing_device_set_cpi(50);
+            pointing_device_set_cpi(30);
             #ifdef HAPTIC_ENABLE
             DRV_pulse(sharp_click);
             #endif // HAPTIC
         } else {
             scrolling_mode = false;
-            pointing_device_set_cpi(500);
+            pointing_device_set_cpi(curr_cpi);
+            #ifdef HAPTIC_ENABLE
+            DRV_pulse(sharp_click);
+            #endif // HAPTIC
+        }
+        return false;
+    case CPI_UP:
+        if(!record->event.pressed){
+            curr_cpi += 100;
+            pointing_device_set_cpi(curr_cpi);       
+            #ifdef HAPTIC_ENABLE
+            DRV_pulse(sharp_click);
+            #endif // HAPTIC
+        }
+        return false;
+    case CPI_DN:
+        if(!record->event.pressed){
+            curr_cpi -= 100;
+            pointing_device_set_cpi(curr_cpi);
             #ifdef HAPTIC_ENABLE
             DRV_pulse(sharp_click);
             #endif // HAPTIC
