@@ -58,7 +58,6 @@ enum combos{
     DBL_PRN,
     DBL_BRC,
     DBL_CBR,
-    DBL_GTLT,
     SCLN_RET
 };
 
@@ -83,6 +82,7 @@ enum tdkeys{
 // └───────────────────────────────────────────────────────────┘
 const key_override_t cw_override = ko_make_basic(MOD_MASK_SHIFT, OSM(MOD_RSFT), QK_CAPS_WORD_TOGGLE);
 
+#ifdef COMBO_ENABLE
 // ┌───────────────────────────────────────────────────────────┐
 // │ d e f i n e   c o m b o s                                 │
 // └───────────────────────────────────────────────────────────┘
@@ -120,7 +120,6 @@ const uint16_t PROGMEM lth_combo[] = {  MT(MOD_LCTL,KC_BSPC), LT(_NUMBERS, KC_TA
 const uint16_t PROGMEM pr_combo[] = { KC_H, SHT_N, COMBO_END};
 const uint16_t PROGMEM cbr_combo[] = { KC_J, KC_L, COMBO_END};
 const uint16_t PROGMEM br_combo[] = { KC_K, KC_M, COMBO_END};
-const uint16_t PROGMEM gt_combo[] = { SHT_N, CTL_E, COMBO_END};
 
 // ┌───────────────────────────────────────────────────────────┐
 // │ c o m b o s                                               │
@@ -130,7 +129,6 @@ combo_t key_combos[COMBO_COUNT] = {
     [DBL_PRN]=COMBO_ACTION(pr_combo),
     [DBL_BRC]=COMBO_ACTION(br_combo),
     [DBL_CBR]=COMBO_ACTION(cbr_combo),
-    [DBL_GTLT]=COMBO_ACTION(gt_combo),
     [SCLN_RET]=COMBO_ACTION(rmb4_combo),
     
     //COMBO(br_combo, DBL_BRC),
@@ -168,6 +166,7 @@ combo_t key_combos[COMBO_COUNT] = {
     COMBO(rtm4_combo, KC_DQUO),
     COMBO(lth_combo, KC_DEL),
 };
+#endif
 
 // ┌───────────────────────────────────────────────────────────┐
 // │ d e f i n e   t a p d a n c e                             │
