@@ -65,17 +65,11 @@ enum custom_keycodes{
    SCROLL=SAFE_RANGE,
    VSCROLL,
    CPI_UP,
-   CPI_DN
+   CPI_DN,
+   
 };
 
-enum tdkeys{
-    DOT_ENT,
-    D_DELETE,
-    P_SPACE,
-    S_ALT_S,
-    T_TAKE,
 
-};
 
 // ┌───────────────────────────────────────────────────────────┐
 // │ d e f i n e   o v e r r i d e s                           │
@@ -168,52 +162,135 @@ combo_t key_combos[COMBO_COUNT] = {
 };
 #endif
 
-// ┌───────────────────────────────────────────────────────────┐
-// │ d e f i n e   t a p d a n c e                             │
-// └───────────────────────────────────────────────────────────┘
-void scln_ent_sent_finished(tap_dance_state_t *state, void *user_data);
-void scln_ent_sent_reset(tap_dance_state_t *state, void *user_data);
-tap_dance_action_t tap_dance_actions[] = {
-    [DOT_ENT]= ACTION_TAP_DANCE_DOUBLE(KC_DOT, KC_ENT),
-    [D_DELETE] = ACTION_TAP_DANCE_DOUBLE(KC_D, KC_DEL),
-    [P_SPACE] = ACTION_TAP_DANCE_DOUBLE(KC_P, KC_SPACE),
-    [S_ALT_S] = ACTION_TAP_DANCE_DOUBLE(KC_S, LALT(KC_S)),
-    [T_TAKE] = ACTION_TAP_DANCE_DOUBLE(KC_T, LSA(KC_T))
-    
-   // [S_ALT_S] = ACTION_TAP_DANCE_DOUBLE(KC_S, LALT(KC_S)),
-   // [T_TAKE] = ACTION_TAP_DANCE_DOUBLE(KC_T, LALT(LSFT(KC_T)))
-   // [SCLN_ENT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, scln_ent_sent_finished, scln_ent_sent_reset)
-};
 
 
 // ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 // │ B E H A V I O U R S                                                                                                            │
 // └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 // ▝▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▘
+
 // ┌───────────────────────────────────────────────────────────┐
-// │ t a p d a n c e                                           │
+// │ d e f i n e   t a p d a n c e                             │
 // └───────────────────────────────────────────────────────────┘
-// SHIFT-ENTER-SEMICOLON/ENTER
-// Handle the possible states for each tapdance keycode you define:
-/*
-now a combo 
-void scln_ent_sent_finished(tap_dance_state_t *state, void *user_data) {
-     if(state->count == 1){
-        register_code16(KC_SCLN);
-     }else {
-        register_code16(KC_SCLN);
-        register_code16(KC_ENT);
-     }
+// void scln_ent_sent_finished(tap_dance_state_t *state, void *user_data);
+// void scln_ent_sent_reset(tap_dance_state_t *state, void *user_data);
+
+enum tdkeys{
+    T_TAKE,
+    DOT_ENT,
+    P_SPACE,
+    S_ALT_S,
+
+};
+typedef enum {
+    TD_NONE,
+    TD_UNKNOWN,
+    TD_SINGLE_TAP,
+    TD_SINGLE_HOLD,
+    TD_DOUBLE_SINGLE_TAP
+} td_state_t;
+
+
+
+// Determine the tapdance state to return
+td_state_t cur_dance(tap_dance_state_t *state) {
+    if (state->count == 1) {
+        if (state->interrupted || !state->pressed) return TD_SINGLE_TAP;
+        else return TD_SINGLE_HOLD;
+    }
+
+    if (state->count == 2) return TD_DOUBLE_SINGLE_TAP;
+    else return TD_UNKNOWN; // Any number higher than the maximum state value you return above
 }
-void scln_ent_sent_reset(tap_dance_state_t *state, void *user_data) {
-     if(state->count == 1){
-         unregister_code16(KC_SCLN);
-     }else {
-            unregister_code16(KC_SCLN);
-             unregister_code16(KC_ENT);
-     }
+static td_state_t td_state;
+void reaper_s_finished(tap_dance_state_t *state, void *user_data);
+void reaper_s_reset(tap_dance_state_t *state, void *user_data);
+void reaper_t_finished(tap_dance_state_t *state, void *user_data);
+void reaper_t_reset(tap_dance_state_t *state, void *user_data);
+tap_dance_action_t tap_dance_actions[] = {
+    [DOT_ENT]= ACTION_TAP_DANCE_DOUBLE(KC_DOT, KC_ENT),
+    [P_SPACE] = ACTION_TAP_DANCE_DOUBLE(KC_P, KC_SPACE),
+    [S_ALT_S] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, reaper_s_finished, reaper_s_reset),
+    [T_TAKE] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, reaper_t_finished, reaper_t_reset)
+
+   // [S_ALT_S] = ACTION_TAP_DANCE_DOUBLE(KC_S, LALT(KC_S)),
+   // [T_TAKE] = ACTION_TAP_DANCE_DOUBLE(KC_T, LALT(LSFT(KC_T)))
+};
+
+
+void reaper_s_finished(tap_dance_state_t *state, void *user_data) {
+    td_state = cur_dance(state);
+    switch (td_state) {
+        case TD_SINGLE_TAP:
+            register_code16(KC_S);
+            break;
+        case TD_SINGLE_HOLD:
+            register_mods(MOD_BIT(KC_LCTL));
+            break;
+        case TD_DOUBLE_SINGLE_TAP:
+            register_mods(MOD_BIT(KC_LSFT));
+            register_mods(MOD_BIT(KC_LALT));
+            register_code16(KC_S);
+            break;
+        default:
+            break;
+    }
 }
-*/
+
+void reaper_s_reset(tap_dance_state_t *state, void *user_data) {
+    switch (td_state) {
+        case TD_SINGLE_TAP:
+            unregister_code16(KC_S);
+            break;
+        case TD_SINGLE_HOLD:
+            unregister_mods(MOD_BIT(KC_LCTL));
+            break;
+        case TD_DOUBLE_SINGLE_TAP:
+            unregister_mods(MOD_BIT(KC_LALT));
+            unregister_code16(KC_S);
+            break;
+        default:
+            break;
+    }
+}
+
+void reaper_t_finished(tap_dance_state_t *state, void *user_data) {
+    td_state = cur_dance(state);
+    switch (td_state) {
+        case TD_SINGLE_TAP:
+            register_code16(KC_T);
+            break;
+        case TD_SINGLE_HOLD:
+            register_mods(MOD_BIT(KC_LSFT));
+            break;
+        case TD_DOUBLE_SINGLE_TAP:
+            register_mods(MOD_BIT(KC_LSFT));
+            register_mods(MOD_BIT(KC_LALT));
+            register_code16(KC_T);
+            break;
+        default:
+            break;
+    }
+}
+
+void reaper_t_reset(tap_dance_state_t *state, void *user_data) {
+    switch (td_state) {
+        case TD_SINGLE_TAP:
+            unregister_code16(KC_T);
+            break;
+        case TD_SINGLE_HOLD:
+            unregister_mods(MOD_BIT(KC_LSFT));
+            break;
+        case TD_DOUBLE_SINGLE_TAP:
+            unregister_mods(MOD_BIT(KC_LSFT));
+            unregister_mods(MOD_BIT(KC_LALT));
+            unregister_code16(KC_T);
+            break;
+        default:
+            break;
+    }
+}
+
 // ┌───────────────────────────────────────────────────────────┐
 // │ o v e r r i d e s                                         │
 // └───────────────────────────────────────────────────────────┘
