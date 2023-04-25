@@ -109,7 +109,8 @@ const uint16_t PROGMEM rmb3_combo[] = {  ALT_I, KC_DOT, COMBO_END};
 const uint16_t PROGMEM rmb4_combo[] = {  KC_O, KC_SLSH, COMBO_END};
 const uint16_t PROGMEM rtm4_combo[] = {  KC_O, KC_QUOT, COMBO_END};
 const uint16_t PROGMEM lth_combo[] = {  MT(MOD_LCTL,KC_BSPC), LT(_NUMBERS, KC_TAB), COMBO_END};
-
+const uint16_t PROGMEM lthdel_combo[] = {  MT(MOD_LCTL,KC_BSPC), KC_TAB, COMBO_END};
+const uint16_t PROGMEM lthdel2_combo[] = {  MT(MOD_LCTL,KC_BSPC), KC_LSFT, COMBO_END};
 // doubles
 const uint16_t PROGMEM pr_combo[] = { KC_H, SHT_N, COMBO_END};
 const uint16_t PROGMEM cbr_combo[] = { KC_J, KC_L, COMBO_END};
@@ -159,6 +160,8 @@ combo_t key_combos[COMBO_COUNT] = {
     COMBO(rmt2_combo, KC_ASTR),
     COMBO(rtm4_combo, KC_DQUO),
     COMBO(lth_combo, KC_DEL),
+    COMBO(lthdel_combo, KC_DEL),
+    COMBO(lthdel2_combo, KC_DEL),
 };
 #endif
 
