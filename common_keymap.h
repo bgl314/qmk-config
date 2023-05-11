@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #endif 
+#include "passwords.h"
 #ifdef OLED_ENABLE
     void oled_request_wakeup(void);
 #endif
@@ -66,7 +67,9 @@ enum custom_keycodes{
    VSCROLL,
    CPI_UP,
    CPI_DN,
-   
+   PWD_S,
+   PWD_L,
+   PWD_D,
 };
 
 
@@ -454,7 +457,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           #endif // AUDIO_ENABLE
         }
         break;
-
+    case PWD_L:
+        if(record->event.pressed){ 
+            SEND_STRING(PWD_long);
+        }
+        break;
+     case PWD_S:
+        if(record->event.pressed){ 
+            SEND_STRING(PWD_short);
+        }
+        break;
+     case PWD_D:
+        if(record->event.pressed){ 
+            SEND_STRING(PWD_diorite);
+        }
+        break;
+    default:
+        break;
     }
 
     return true;
