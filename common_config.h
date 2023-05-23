@@ -14,3 +14,4 @@ for more options.
 // having trouble getting override to trigger caps word, below is working
 #define BOTH_SHIFTS_TURNS_ON_CAPS_WORD
 
+
