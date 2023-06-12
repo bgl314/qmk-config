@@ -373,8 +373,22 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 #endif
 
 
+bool subScrollPressed=false;
 
 
+layer_state_t layer_state_set_kb(layer_state_t state) {
+     #ifdef POINTING_DEVICE_ENABLE
+     pointing_device_set_cpi(curr_cpi);
+     if(get_highest_layer(state)== _MOUSE){
+        if(subScrollPressed || scrolling_mode){
+            pointing_device_set_cpi(curr_scroll_cpi);
+        }
+     }else{
+        
+     }
+     #endif
+     return state;
+}
 
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
@@ -395,16 +409,12 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 // │ m o u s e   s c r o l l   l o c k               │
 // └─────────────────────────────────────────────────┘
     case KC_A:
-        if(IS_LAYER_ON( _MOUSE)){
-            // this is the key under the scroll, might have hit it just before entering mouse layer
-            pointing_device_set_cpi(curr_scroll_cpi);
-            return false;
+        if (record->event.pressed) {
+            subScrollPressed =true;
         }else{
-            // make sure that we are on normal cpi
-            pointing_device_set_cpi(curr_cpi);
-            return true;
+            subScrollPressed =false;
         }
-        
+        return true;
     case SCROLL:
         if (record->event.pressed) {
             scrolling_mode = true;
