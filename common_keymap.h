@@ -394,7 +394,17 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 // ┌─────────────────────────────────────────────────┐
 // │ m o u s e   s c r o l l   l o c k               │
 // └─────────────────────────────────────────────────┘
-    
+    case KC_A:
+        if(IS_LAYER_ON( _MOUSE)){
+            // this is the key under the scroll, might have hit it just before entering mouse layer
+            pointing_device_set_cpi(curr_scroll_cpi);
+            return false;
+        }else{
+            // make sure that we are on normal cpi
+            pointing_device_set_cpi(curr_cpi);
+            return true;
+        }
+        
     case SCROLL:
         if (record->event.pressed) {
             scrolling_mode = true;
