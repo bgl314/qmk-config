@@ -13,5 +13,6 @@ for more options.
 #define COMBO_COUNT 31
 // having trouble getting override to trigger caps word, below is working
 #define BOTH_SHIFTS_TURNS_ON_CAPS_WORD
+#define SPLIT_MODS_ENABLE
 
 

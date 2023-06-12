@@ -69,7 +69,6 @@ enum combos{
 
 enum custom_keycodes{
    SCROLL=SAFE_RANGE,
-   VSCROLL,
    CPI_UP,
    CPI_DN,
 #ifdef HAS_PASSWORDS
@@ -338,16 +337,47 @@ bool caps_word_press_user(uint16_t keycode) {
 
 
 
+
+
+
 // ┌───────────────────────────────────────────────────────────┐
 // │ p e r - k e y  a c t i o n s                              │
 // └───────────────────────────────────────────────────────────┘
 uint8_t mod_state;
 #ifdef POINTING_DEVICE_ENABLE
-static bool vscrolling_mode = false;
 static bool scrolling_mode = false;
 static int curr_cpi=800;
+static int curr_scroll_cpi = 30;
+
+// call this from 
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+//     #ifdef CONSOLE_ENABLE
+//     uprintf("mouse col: %u, row: %u\n",mouse_report.h, mouse_report.v);
+// #endif
+    
+    if (scrolling_mode) {
+        // only vertical scrolling.
+        pointing_device_set_cpi(curr_scroll_cpi);
+        mouse_report.h = 0;//mouse_report.x;
+        mouse_report.v = mouse_report.y;
+        mouse_report.x = 0;
+        mouse_report.y = 0;
+    }else
+        pointing_device_set_cpi(curr_cpi);
+        
+    return mouse_report;
+}
+
+
+
 #endif
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+
+
+
+
+
+
+bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     #ifdef CONSOLE_ENABLE
     if(record->event.key.col!=0 ||record->event.key.row !=0)
         uprintf("KL: kc: 0x%04X, col: %u, row: %u, time: %u,  count: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.time, record->tap.count);
@@ -357,30 +387,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         oled_request_wakeup();
     #endif
     mod_state = get_mods();
+
+
     switch (keycode) {
     #ifdef POINTING_DEVICE_ENABLE
 // ┌─────────────────────────────────────────────────┐
 // │ m o u s e   s c r o l l   l o c k               │
 // └─────────────────────────────────────────────────┘
-     case VSCROLL:
-        if (record->event.pressed) {
-            vscrolling_mode = true;
-            pointing_device_set_cpi(30);
-            #ifdef HAPTIC_ENABLE
-            DRV_pulse(sharp_click);
-            #endif // HAPTIC
-        } else {
-            vscrolling_mode = false;
-            pointing_device_set_cpi(curr_cpi);
-            #ifdef HAPTIC_ENABLE
-            DRV_pulse(sharp_click);
-            #endif // HAPTIC
-        }
-        return false;
+    
     case SCROLL:
         if (record->event.pressed) {
             scrolling_mode = true;
-            pointing_device_set_cpi(30);
+            pointing_device_set_cpi(curr_scroll_cpi);
             #ifdef HAPTIC_ENABLE
             DRV_pulse(sharp_click);
             #endif // HAPTIC
