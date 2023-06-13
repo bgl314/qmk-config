@@ -413,6 +413,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
             subScrollPressed =true;
         }else{
             subScrollPressed =false;
+            pointing_device_set_cpi(curr_scroll_cpi);
         }
         return true;
     case SCROLL:
