@@ -384,7 +384,9 @@ layer_state_t layer_state_set_kb(layer_state_t state) {
             pointing_device_set_cpi(curr_scroll_cpi);
         }
      }else{
-        
+        if(subScrollPressed || scrolling_mode){
+            pointing_device_set_cpi(curr_scroll_cpi);
+        }
      }
      #endif
      return state;
@@ -411,9 +413,11 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     case KC_A:
         if (record->event.pressed) {
             subScrollPressed =true;
+             pointing_device_set_cpi(curr_scroll_cpi);
         }else{
             subScrollPressed =false;
-            pointing_device_set_cpi(curr_scroll_cpi);
+             pointing_device_set_cpi(curr_cpi);
+           
         }
         return true;
     case SCROLL:
