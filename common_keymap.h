@@ -64,13 +64,15 @@ enum combos{
     DBL_PRN,
     DBL_BRC,
     DBL_CBR,
-    SCLN_RET
+    DBL_GT,
+    //SCLN_RET
 };
 
 enum custom_keycodes{
    SCROLL=SAFE_RANGE,
    CPI_UP,
    CPI_DN,
+   SCLN_RET,
 #ifdef HAS_PASSWORDS
    PWD_S,
    PWD_L,
@@ -117,7 +119,8 @@ const uint16_t PROGMEM rmb0_combo[] = {  KC_H, KC_K, COMBO_END};
 const uint16_t PROGMEM rmb1_combo[] = {  SHT_N, KC_M, COMBO_END};
 const uint16_t PROGMEM rmb2_combo[] = {  CTL_E, KC_COMM, COMBO_END};
 const uint16_t PROGMEM rmb3_combo[] = {  ALT_I, KC_DOT, COMBO_END};
-const uint16_t PROGMEM rmb4_combo[] = {  KC_O, KC_SLSH, COMBO_END};
+const uint16_t PROGMEM rb4_combo[] = {  KC_SLASH, KC_DOT, COMBO_END};
+//const uint16_t PROGMEM rmb4_combo[] = {  KC_O, KC_SLSH, COMBO_END};
 const uint16_t PROGMEM rtm4_combo[] = {  KC_O, KC_QUOT, COMBO_END};
 const uint16_t PROGMEM lth_combo[] = {  MT(MOD_LCTL,KC_BSPC), LT(_NUMBERS, KC_TAB), COMBO_END};
 const uint16_t PROGMEM lthdel_combo[] = {  MT(MOD_LCTL,KC_BSPC), KC_TAB, COMBO_END};
@@ -126,6 +129,7 @@ const uint16_t PROGMEM lthdel2_combo[] = {  MT(MOD_LCTL,KC_BSPC), KC_LSFT, COMBO
 const uint16_t PROGMEM pr_combo[] = { KC_H, SHT_N, COMBO_END};
 const uint16_t PROGMEM cbr_combo[] = { KC_J, KC_L, COMBO_END};
 const uint16_t PROGMEM br_combo[] = { KC_K, KC_M, COMBO_END};
+const uint16_t PROGMEM gt_combo[] = { KC_COMM, KC_DOT, COMBO_END};
 
 // ┌───────────────────────────────────────────────────────────┐
 // │ c o m b o s                                               │
@@ -135,7 +139,8 @@ combo_t key_combos[COMBO_COUNT] = {
     [DBL_PRN]=COMBO_ACTION(pr_combo),
     [DBL_BRC]=COMBO_ACTION(br_combo),
     [DBL_CBR]=COMBO_ACTION(cbr_combo),
-    [SCLN_RET]=COMBO_ACTION(rmb4_combo),
+    [DBL_GT]=COMBO_ACTION(gt_combo),
+    //[SCLN_RET]=COMBO_ACTION(rmb4_combo),
     
     //COMBO(br_combo, DBL_BRC),
     //COMBO(cbr_combo, DBL_CBR),
@@ -173,6 +178,7 @@ combo_t key_combos[COMBO_COUNT] = {
     COMBO(lth_combo, KC_DEL),
     COMBO(lthdel_combo, KC_DEL),
     COMBO(lthdel2_combo, KC_DEL),
+    COMBO(rb4_combo, KC_BSLS),
 };
 #endif
 
@@ -379,15 +385,7 @@ bool subScrollPressed=false;
 layer_state_t layer_state_set_kb(layer_state_t state) {
      #ifdef POINTING_DEVICE_ENABLE
      pointing_device_set_cpi(curr_cpi);
-     if(get_highest_layer(state)== _MOUSE){
-        if(subScrollPressed || scrolling_mode){
-            pointing_device_set_cpi(curr_scroll_cpi);
-        }
-     }else{
-        if(subScrollPressed || scrolling_mode){
-            pointing_device_set_cpi(curr_scroll_cpi);
-        }
-     }
+     
      #endif
      return state;
 }
@@ -492,7 +490,15 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
           #endif // HAPTIC_ENABLE
         }
         break;
-
+    case SCLN_RET:
+        if (record->event.pressed) {
+            register_code(KC_SCLN);
+            register_code(KC_ENT);
+        } else {
+            unregister_code(KC_SCLN);
+            unregister_code(KC_ENT);
+        }
+        break;
     case KC_CAPS:
         if (record->event.pressed) {
           #ifdef HAPTIC_ENABLE
@@ -589,32 +595,32 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
             unregister_code(KC_LEFT);
         }
         break;
-    // case DBL_GTLT:
-    //      if (record->event.pressed) {
-    //         if(!(get_mods() & MOD_MASK_SHIFT))
-    //             set_mods(MOD_MASK_SHIFT);
-    //         register_code(KC_COMMA);
-    //         register_code(KC_DOT);
-    //         set_mods(mod_state);
-    //         register_code(KC_LEFT);
-    //     } else {
-    //         unregister_code(KC_COMMA);
-    //         unregister_code(KC_DOT);
-    //         unregister_code(KC_LEFT);
-    //     }
-    //     // Do not let QMK process the keycode further
-    //     return false;
+    
+    case DBL_GT:
+         if (pressed) {
+            if(!(get_mods() & MOD_MASK_SHIFT))
+                set_mods(MOD_MASK_SHIFT);
+            register_code(KC_COMMA);
+            register_code(KC_DOT);
+            set_mods(mod_state);
+            register_code(KC_LEFT);
+        } else {
+            unregister_code(KC_COMMA);
+            unregister_code(KC_DOT);
+            unregister_code(KC_LEFT);
+        }
+        break;
 // ┌─────────────────────────────────────────────────┐
 // │ c u s t o m  k e y c o d e s                    │
 // └─────────────────────────────────────────────────┘
-    case SCLN_RET:
-        if (pressed) {
-            register_code(KC_SCLN);
-            register_code(KC_ENT);
-        } else {
-            unregister_code(KC_SCLN);
-            unregister_code(KC_ENT);
-        }
-        break;
+    // case SCLN_RET:
+    //     if (pressed) {
+    //         register_code(KC_SCLN);
+    //         register_code(KC_ENT);
+    //     } else {
+    //         unregister_code(KC_SCLN);
+    //         unregister_code(KC_ENT);
+    //     }
+    //     break;
   }
 }
