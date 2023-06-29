@@ -22,7 +22,6 @@ enum layers {
     _COLEMAK,
     _GAMES,
     _GAMES_ALT,
-    _REAPER,
     _MOUSE,
     _SYMBOLS,
     _NUMBERS,
@@ -119,7 +118,6 @@ const uint16_t PROGMEM rmb0_combo[] = {  KC_H, KC_K, COMBO_END};
 const uint16_t PROGMEM rmb1_combo[] = {  SHT_N, KC_M, COMBO_END};
 const uint16_t PROGMEM rmb2_combo[] = {  CTL_E, KC_COMM, COMBO_END};
 const uint16_t PROGMEM rmb3_combo[] = {  ALT_I, KC_DOT, COMBO_END};
-const uint16_t PROGMEM rb4_combo[] = {  KC_SLASH, KC_DOT, COMBO_END};
 //const uint16_t PROGMEM rmb4_combo[] = {  KC_O, KC_SLSH, COMBO_END};
 const uint16_t PROGMEM rtm4_combo[] = {  KC_O, KC_QUOT, COMBO_END};
 const uint16_t PROGMEM lth_combo[] = {  MT(MOD_LCTL,KC_BSPC), LT(_NUMBERS, KC_TAB), COMBO_END};
@@ -178,7 +176,6 @@ combo_t key_combos[COMBO_COUNT] = {
     COMBO(lth_combo, KC_DEL),
     COMBO(lthdel_combo, KC_DEL),
     COMBO(lthdel2_combo, KC_DEL),
-    COMBO(rb4_combo, KC_BSLS),
 };
 #endif
 
@@ -196,10 +193,11 @@ combo_t key_combos[COMBO_COUNT] = {
 // void scln_ent_sent_reset(tap_dance_state_t *state, void *user_data);
 
 enum tdkeys{
-    T_TAKE,
     DOT_ENT,
-    P_SPACE,
-    S_ALT_S,
+    TD_PAREN,
+    TD_CBRC,
+    TD_BKT,
+    TD_GTLT
 
 };
 typedef enum {
@@ -222,94 +220,16 @@ td_state_t cur_dance(tap_dance_state_t *state) {
     if (state->count == 2) return TD_DOUBLE_SINGLE_TAP;
     else return TD_UNKNOWN; // Any number higher than the maximum state value you return above
 }
-static td_state_t td_state;
-void reaper_s_finished(tap_dance_state_t *state, void *user_data);
-void reaper_s_reset(tap_dance_state_t *state, void *user_data);
-void reaper_t_finished(tap_dance_state_t *state, void *user_data);
-void reaper_t_reset(tap_dance_state_t *state, void *user_data);
+
 tap_dance_action_t tap_dance_actions[] = {
     [DOT_ENT]= ACTION_TAP_DANCE_DOUBLE(KC_DOT, KC_ENT),
-    [P_SPACE] = ACTION_TAP_DANCE_DOUBLE(KC_P, KC_SPACE),
-    [S_ALT_S] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, reaper_s_finished, reaper_s_reset),
-    [T_TAKE] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, reaper_t_finished, reaper_t_reset)
-
-   // [S_ALT_S] = ACTION_TAP_DANCE_DOUBLE(KC_S, LALT(KC_S)),
-   // [T_TAKE] = ACTION_TAP_DANCE_DOUBLE(KC_T, LALT(LSFT(KC_T)))
+    [TD_PAREN]= ACTION_TAP_DANCE_DOUBLE(KC_LPRN, KC_RPRN),
+    [TD_CBRC]= ACTION_TAP_DANCE_DOUBLE(KC_LCBR, KC_RCBR),
+    [TD_BKT]= ACTION_TAP_DANCE_DOUBLE(KC_LBRC, KC_RBRC),
+    [TD_GTLT]= ACTION_TAP_DANCE_DOUBLE(KC_LT, KC_GT)
 };
 
 
-void reaper_s_finished(tap_dance_state_t *state, void *user_data) {
-    td_state = cur_dance(state);
-    switch (td_state) {
-        case TD_SINGLE_TAP:
-            register_code16(KC_S);
-            break;
-        case TD_SINGLE_HOLD:
-            register_mods(MOD_BIT(KC_LCTL));
-            break;
-        case TD_DOUBLE_SINGLE_TAP:
-            register_mods(MOD_BIT(KC_LSFT));
-            register_mods(MOD_BIT(KC_LALT));
-            register_code16(KC_S);
-            break;
-        default:
-            break;
-    }
-}
-
-void reaper_s_reset(tap_dance_state_t *state, void *user_data) {
-    switch (td_state) {
-        case TD_SINGLE_TAP:
-            unregister_code16(KC_S);
-            break;
-        case TD_SINGLE_HOLD:
-            unregister_mods(MOD_BIT(KC_LCTL));
-            break;
-        case TD_DOUBLE_SINGLE_TAP:
-            unregister_mods(MOD_BIT(KC_LALT));
-            unregister_code16(KC_S);
-            break;
-        default:
-            break;
-    }
-}
-
-void reaper_t_finished(tap_dance_state_t *state, void *user_data) {
-    td_state = cur_dance(state);
-    switch (td_state) {
-        case TD_SINGLE_TAP:
-            register_code16(KC_T);
-            break;
-        case TD_SINGLE_HOLD:
-            register_mods(MOD_BIT(KC_LSFT));
-            break;
-        case TD_DOUBLE_SINGLE_TAP:
-            register_mods(MOD_BIT(KC_LSFT));
-            register_mods(MOD_BIT(KC_LALT));
-            register_code16(KC_T);
-            break;
-        default:
-            break;
-    }
-}
-
-void reaper_t_reset(tap_dance_state_t *state, void *user_data) {
-    switch (td_state) {
-        case TD_SINGLE_TAP:
-            unregister_code16(KC_T);
-            break;
-        case TD_SINGLE_HOLD:
-            unregister_mods(MOD_BIT(KC_LSFT));
-            break;
-        case TD_DOUBLE_SINGLE_TAP:
-            unregister_mods(MOD_BIT(KC_LSFT));
-            unregister_mods(MOD_BIT(KC_LALT));
-            unregister_code16(KC_T);
-            break;
-        default:
-            break;
-    }
-}
 
 // ┌───────────────────────────────────────────────────────────┐
 // │ o v e r r i d e s                                         │
@@ -355,6 +275,11 @@ static bool scrolling_mode = false;
 static int curr_cpi=800;
 static int curr_scroll_cpi = 30;
 
+void pointing_device_init_user(void) {
+    set_auto_mouse_layer(_MOUSE); // only required if AUTO_MOUSE_DEFAULT_LAYER is not set to index of <mouse_layer>
+    set_auto_mouse_enable(true);  // always required before the auto mouse feature will work
+}
+
 // call this from 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 //     #ifdef CONSOLE_ENABLE
@@ -363,18 +288,24 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     
     if (scrolling_mode) {
         // only vertical scrolling.
-        pointing_device_set_cpi(curr_scroll_cpi);
         mouse_report.h = 0;//mouse_report.x;
         mouse_report.v = mouse_report.y;
         mouse_report.x = 0;
         mouse_report.y = 0;
-    }else
-        pointing_device_set_cpi(curr_cpi);
+    }
         
     return mouse_report;
 }
 
-
+// Function to handle layer changes and disable drag scrolling when not in AUTO_MOUSE_DEFAULT_LAYER
+// layer_state_t layer_state_set_user(layer_state_t state) {
+//     // Disable set_scrolling if the current layer is not the AUTO_MOUSE_DEFAULT_LAYER
+//     if (get_highest_layer(state) != AUTO_MOUSE_DEFAULT_LAYER) {
+//         scrolling_mode=false;
+//         pointing_device_set_cpi(curr_cpi);
+//     }
+//     return state;
+// }
 
 #endif
 
@@ -382,13 +313,13 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 bool subScrollPressed=false;
 
 
-layer_state_t layer_state_set_kb(layer_state_t state) {
-     #ifdef POINTING_DEVICE_ENABLE
-     pointing_device_set_cpi(curr_cpi);
+// layer_state_t layer_state_set_kb(layer_state_t state) {
+//      #ifdef POINTING_DEVICE_ENABLE
+//      pointing_device_set_cpi(curr_cpi);
      
-     #endif
-     return state;
-}
+//      #endif
+//      return state;
+// }
 
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
