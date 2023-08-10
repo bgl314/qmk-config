@@ -44,12 +44,12 @@ enum layers {
 #define ALT_I MT(MOD_RALT, KC_I)
 #define GUI_O MT(MOD_RGUI, KC_O)
 
-#define SHT_LPRN MT(MOD_LSFT, LSFT(KC_9))
-#define CTL_LCBR MT(MOD_LCTL, LSFT(KC_LBRC))
+#define SHT_LPRN MT(MOD_LSFT, KC_LPRN)
+#define CTL_LCBR MT(MOD_LCTL, LSFT(KC_LCBR))
 #define ALT_LBRC MT(MOD_LALT, KC_LBRC)
 
-#define SHT_RPRN MT(MOD_RSFT, RSFT(KC_0))
-#define CTL_RCBR MT(MOD_RCTL, RSFT(KC_RBRC))
+#define SHT_RPRN MT(MOD_RSFT, KC_RPRN)
+#define CTL_RCBR MT(MOD_RCTL, RSFT(KC_RCBR))
 #define ALT_RBRC MT(MOD_RALT, KC_RBRC)
 
 #define SHT_MPLY MT(MOD_RSFT, KC_MPLY)
@@ -86,13 +86,13 @@ enum custom_keycodes{
 // ┌───────────────────────────────────────────────────────────┐
 // │ d e f i n e   o v e r r i d e s                           │
 // └───────────────────────────────────────────────────────────┘
-const key_override_t cw_override = ko_make_basic(MOD_MASK_SHIFT, OSM(MOD_RSFT), QK_CAPS_WORD_TOGGLE);
+//const key_override_t cw_override = ko_make_basic(MOD_MASK_SHIFT, OSM(MOD_RSFT), QK_CAPS_WORD_TOGGLE);
 
 #ifdef COMBO_ENABLE
 // ┌───────────────────────────────────────────────────────────┐
 // │ d e f i n e   c o m b o s                                 │
 // └───────────────────────────────────────────────────────────┘
-const uint16_t PROGMEM slash_nav_combo[] = {KC_SLSH, LT(_NAV,KC_SPC), COMBO_END};
+const uint16_t PROGMEM scln_ent_combo[] = {KC_Y, ALT_I, COMBO_END};
 const uint16_t PROGMEM o_nav_combo[] = {KC_O, LT(_NAV,KC_SPC), COMBO_END};
 const uint16_t PROGMEM a_bksp_combo[] = {MT(MOD_LCTL,KC_BSPC), KC_A, COMBO_END};
 const uint16_t PROGMEM rh_combo[] = {LT(_NAV,KC_SPC),OSM(MOD_RSFT), COMBO_END};
@@ -121,10 +121,8 @@ const uint16_t PROGMEM rmb3_combo[] = {  ALT_I, KC_DOT, COMBO_END};
 //const uint16_t PROGMEM rmb4_combo[] = {  KC_O, KC_SLSH, COMBO_END};
 const uint16_t PROGMEM rtm4_combo[] = {  KC_O, KC_QUOT, COMBO_END};
 const uint16_t PROGMEM lth_combo[] = {  MT(MOD_LCTL,KC_BSPC), LT(_NUMBERS, KC_TAB), COMBO_END};
-const uint16_t PROGMEM lthdel_combo[] = {  MT(MOD_LCTL,KC_BSPC), KC_TAB, COMBO_END};
-const uint16_t PROGMEM lthdel2_combo[] = {  MT(MOD_LCTL,KC_BSPC), KC_LSFT, COMBO_END};
-// doubles
-const uint16_t PROGMEM pr_combo[] = { KC_H, SHT_N, COMBO_END};
+// doubles 
+const uint16_t PROGMEM pr_combo[] = { KC_H, SHT_N,  COMBO_END};
 const uint16_t PROGMEM cbr_combo[] = { KC_J, KC_L, COMBO_END};
 const uint16_t PROGMEM br_combo[] = { KC_K, KC_M, COMBO_END};
 const uint16_t PROGMEM gt_combo[] = { KC_COMM, KC_DOT, COMBO_END};
@@ -144,7 +142,7 @@ combo_t key_combos[COMBO_COUNT] = {
     //COMBO(cbr_combo, DBL_CBR),
     //COMBO(rmb4_combo, SCLN_RET),
     // ok order doesn't matter anymore
-    COMBO(slash_nav_combo, KC_ENT),
+    COMBO(scln_ent_combo, SCLN_RET),
     COMBO(o_nav_combo, KC_ENT),
     COMBO(rh_combo, MO(_ADJUST)),
     COMBO(a_bksp_combo, KC_ENT),
@@ -174,8 +172,6 @@ combo_t key_combos[COMBO_COUNT] = {
     COMBO(rmt2_combo, KC_ASTR),
     COMBO(rtm4_combo, KC_DQUO),
     COMBO(lth_combo, KC_DEL),
-    COMBO(lthdel_combo, KC_DEL),
-    COMBO(lthdel2_combo, KC_DEL),
 };
 #endif
 
@@ -235,10 +231,10 @@ tap_dance_action_t tap_dance_actions[] = {
 // │ o v e r r i d e s                                         │
 // └───────────────────────────────────────────────────────────┘
 // This globally defines all key overrides to be used
-const key_override_t **key_overrides = (const key_override_t *[]){
-    &cw_override,
-    NULL // Null terminate the array of overrides!
-};
+// const key_override_t **key_overrides = (const key_override_t *[]){
+//     &cw_override,
+//     NULL // Null terminate the array of overrides!
+// };
 
 // ┌───────────────────────────────────────────────────────────┐
 // │ c a p s w o r d                                           │

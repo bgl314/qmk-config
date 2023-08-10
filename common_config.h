@@ -10,7 +10,7 @@ for more options.
 // Prevent normal rollover on alphas from accidentally triggering mods.
 #define IGNORE_MOD_TAP_INTERRUPT
 #define TAPPING_TOGGLE 4
-#define COMBO_COUNT 30
+#define COMBO_COUNT 28
 // having trouble getting override to trigger caps word, below is working
 #define BOTH_SHIFTS_TURNS_ON_CAPS_WORD
 #define SPLIT_MODS_ENABLE
