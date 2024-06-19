@@ -10,6 +10,7 @@
     void oled_request_wakeup(void);
 #endif
 
+
 // ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 // │ D E F I N I T I O N S                                                                                                                      │
 // └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
@@ -30,6 +31,7 @@ enum layers {
 #ifdef HAS_PASSWORDS
     ,_PWDS
 #endif
+    ,_ADJUST_ALT
 };
 
 // ┌───────────────────────────────────────────────────────────┐
@@ -349,33 +351,25 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
         if (record->event.pressed) {
             scrolling_mode = true;
             pointing_device_set_cpi(curr_scroll_cpi);
-            #ifdef HAPTIC_ENABLE
-            DRV_pulse(sharp_click);
-            #endif // HAPTIC
+            
         } else {
             scrolling_mode = false;
             pointing_device_set_cpi(curr_cpi);
-            #ifdef HAPTIC_ENABLE
-            DRV_pulse(sharp_click);
-            #endif // HAPTIC
+           
         }
         return false;
     case CPI_UP:
         if(!record->event.pressed){
             curr_cpi += 100;
             pointing_device_set_cpi(curr_cpi);       
-            #ifdef HAPTIC_ENABLE
-            DRV_pulse(sharp_click);
-            #endif // HAPTIC
+           
         }
         return false;
     case CPI_DN:
         if(!record->event.pressed){
             curr_cpi -= 100;
             pointing_device_set_cpi(curr_cpi);
-            #ifdef HAPTIC_ENABLE
-            DRV_pulse(sharp_click);
-            #endif // HAPTIC
+           
         }
         return false;
     #endif
@@ -412,9 +406,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 // └─────────────────────────────────────────────────┘
     case KC_MPLY:
         if (record->event.pressed) {
-          #ifdef HAPTIC_ENABLE
-                  DRV_pulse(sharp_click);
-          #endif // HAPTIC_ENABLE
+         
         }
         break;
     case SCLN_RET:
@@ -429,7 +421,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     case KC_CAPS:
         if (record->event.pressed) {
           #ifdef HAPTIC_ENABLE
-                  DRV_pulse(medium_click1);
+                  DRV_pulse(17);
           #endif // HAPTIC_ENABLE
           #ifdef AUDIO_ENABLE
               led_t led_usb_state = host_keyboard_led_state();
