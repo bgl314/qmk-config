@@ -84,12 +84,6 @@ enum custom_keycodes{
 };
 
 
-
-// ┌───────────────────────────────────────────────────────────┐
-// │ d e f i n e   o v e r r i d e s                           │
-// └───────────────────────────────────────────────────────────┘
-//const key_override_t cw_override = ko_make_basic(MOD_MASK_SHIFT, OSM(MOD_RSFT), QK_CAPS_WORD_TOGGLE);
-
 #ifdef COMBO_ENABLE
 // ┌───────────────────────────────────────────────────────────┐
 // │ d e f i n e   c o m b o s                                 │
@@ -178,6 +172,19 @@ combo_t key_combos[COMBO_COUNT] = {
 #endif
 
 
+// ┌─────────────────────────────────────────────────┐
+// │ d e f i n e   k e y   o v e r r i d e s         │
+// └─────────────────────────────────────────────────┘
+
+
+// const key_override_t sve_key_override = ko_make_basic(MOD_MASK_GUI, KC_S, C(KC_S));
+
+// // This globally defines all key overrides to be used ├───────────┐
+// const key_override_t **key_overrides = (const key_override_t *[]){
+//   &sve_key_override,
+//   NULL // Null terminate the array of overrides!
+// };
+
 
 // ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 // │ B E H A V I O U R S                                                                                                            │
@@ -228,15 +235,6 @@ tap_dance_action_t tap_dance_actions[] = {
 };
 
 
-
-// ┌───────────────────────────────────────────────────────────┐
-// │ o v e r r i d e s                                         │
-// └───────────────────────────────────────────────────────────┘
-// This globally defines all key overrides to be used
-// const key_override_t **key_overrides = (const key_override_t *[]){
-//     &cw_override,
-//     NULL // Null terminate the array of overrides!
-// };
 
 // ┌───────────────────────────────────────────────────────────┐
 // │ c a p s w o r d                                           │
@@ -421,7 +419,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     case KC_CAPS:
         if (record->event.pressed) {
           #ifdef HAPTIC_ENABLE
-                  DRV_pulse(17);
+                  drv2605l_pulse(17);
           #endif // HAPTIC_ENABLE
           #ifdef AUDIO_ENABLE
               led_t led_usb_state = host_keyboard_led_state();
