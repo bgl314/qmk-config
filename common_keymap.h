@@ -22,6 +22,7 @@
 enum layers {
     _COLEMAK,
     _GAMES,
+    _GAMES_QWE,
     _GAMES_ALT,
     _MOUSE,
     _SYMBOLS,
